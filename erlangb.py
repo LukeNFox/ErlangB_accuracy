@@ -10,6 +10,7 @@ def calculateEB(N,A0):
         return erlangB
 
 def calculateOT(numCalls):
+    #calulate traffic values in erlang
     #assumes average call duration of 4 minutes 44 seconds
     avgDuration = 0.07883
     return numCalls*avgDuration
