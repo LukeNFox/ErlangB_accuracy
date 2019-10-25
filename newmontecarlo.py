@@ -20,6 +20,7 @@ class simulation():
     def generateCallData(self,numCalls,a,b):
         callInfo = []
         index = []
+        tempcd = 0
         for j in range(numCalls):
             lower_bound = 0
             upper_bound = 3600 
@@ -28,37 +29,45 @@ class simulation():
             st = np.random.uniform(lower_bound,upper_bound,1)
             #call duration in seconds
             cd = np.random.gamma(a,b,1)
-
             #cd = np.random.lognormal(3.33,1.04,1)
 
-            entry = [st,st+cd,False]
+            entry = [st,st+cd]
             callInfo.append(entry)
             index.append(j)
-
-        self.dfObj = pd.DataFrame(callInfo, columns = ['Start Times','Finish Time','Success'], index=index).sort_values(by=['Start Times'])
+    
+        self.dfObj = pd.DataFrame(callInfo, columns = ['Start Times','Finish Time'], index=index).sort_values(by=['Start Times'])
         self.dfObj = self.dfObj.reset_index(drop=True)
         
 
     def simulate(self, numCalls):
 
-        for i in range(numCalls):
+        #for i in range(numCalls):
+        call = 0
+        while call < numCalls:
+            print("numCalls: ", numCalls)
+            print("call: ", call)
+            print("blocked: ", self.blockedCalls)
+            currentStart = float(self.dfObj.at[call,'Start Times'])
             unfinished = 0
-            expired = False
+            channelsFull = False
             # check how many succesful call before my index have finish times after my start time
-            while expired == False :    
-                for j in range(i,0,-1):
-                    if (self.dfObj.at[j,'Finish Time'] > self.dfObj.at[i,'Start Times']) & self.dfObj.at[j,'Success'] == True:
+            while channelsFull == False :    
+                for j in range(call - 1,-1,-1):
+                    if (float(self.dfObj.at[j,'Finish Time']) > currentStart):
                         unfinished+=1  
-                    if unfinished >= self.numChannels:       
-                        expired = True                    
-                expired = True
+                        if (unfinished >= self.numChannels):    
+                            #print("blocked calls: ", self.blockedCalls)      
+                            self.dfObj.drop([call],axis=0)
+                            call-=1
+                            self.blockedCalls+=1
+                            numCalls-=1
+                            channelsFull = True
+                    if(currentStart - float(self.dfObj.at[j,'Start Times']) > 400.00):                                     
+                        channelsFull = True   
+                channelsFull = True
+            call+=1
 
-            if unfinished >= self.numChannels:
-                self.dfObj.at[i,'Success'] = False 
-                self.blockedCalls+=1
 
-            else:
-                self.dfObj.at[i,'Success'] = True
       
     def getGOS(self, numCalls):
         if self.blockedCalls > 0:
