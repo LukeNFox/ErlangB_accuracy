@@ -53,9 +53,15 @@ class simulation():
 
     def simulate(self, numCalls):
 
-        for i in range(numCalls):
+        #for i in range(numCalls):
+        call = 0
+        while call < numCalls:
+            print("numCalls: ", numCalls)
+            print("call: ", call)
+            print("blocked: ", self.blockedCalls)
+            currentStart = float(self.dfObj.at[call,'Start Times'])
             unfinished = 0
-            expired = False
+            channelsFull = False
             # check how many succesful call before my index have finish times after my start time
             while expired == False :    
                 for j in range(i - 1,-1,-1):
@@ -74,8 +80,6 @@ class simulation():
                 self.dfObj.at[i,'Success'] = False 
                 self.blockedCalls+=1
 
-            else:
-                self.dfObj.at[i,'Success'] = True
       
     def getGOS(self, numCalls):
         if self.blockedCalls > 0:

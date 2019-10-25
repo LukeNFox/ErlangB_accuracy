@@ -12,12 +12,12 @@ def calculateEB(N,A0):
 def calculateOT(numCalls):
     #calulate traffic values in erlang
     #assumes average call duration of 4 minutes 44 seconds
-    avgDuration = 0.07883
+    avgDuration = (1.2073*29.6121)/3600
     return numCalls*avgDuration
 
 
 if __name__ == '__main__':
-  numChannels=100
+  numChannels=30
   for calls in range(0,2000,100):   
     traffic=calculateOT(calls)
     erlangB=calculateEB(numChannels,traffic)
